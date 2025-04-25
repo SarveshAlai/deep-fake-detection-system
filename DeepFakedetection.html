@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Fake Detection - Sarvesh Alai</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6de5;
+            --secondary-color: #2a4dd0;
+            --accent-color: #f5c542;
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #f5f7ff;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --dark-blue: #1e3a8a;
+        }
+
+        .dark-mode {
+            --primary-color: #6d8eff;
+            --secondary-color: #4a6de5;
+            --accent-color: #f5c542;
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --card-bg: #1e1e1e;
+            --border-color: #2d2d2d;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --dark-blue: #2d4ba0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Header & Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background-color: var(--bg-color);
+            box-shadow: 0 1px 10px var(--shadow-color);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            margin-left: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding-top: 100px;
+            padding-bottom: 50px;
+            background-color: var(--dark-blue);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            background: linear-gradient(90deg, #fff, var(--accent-color));
+            background-size: 200% auto;
+            color: #fff;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 5s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-image {
+            max-width: 800px;
+            margin: 2rem auto 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease;
+        }
+
+        .hero-image:hover {
+            transform: scale(1.02);
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Content Sections */
+        section {
+            padding: 5rem 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100px;
+            height: 4px;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .section-title:hover::after {
+            width: 150px;
+        }
+
+        .market-section {
+            background-color: var(--card-bg);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .feature-card:hover h3 {
+            color: var(--primary-color);
+        }
+
+        .feature-card p {
+            line-height: 1.6;
+        }
+
+        /* Timeline Section */
+        .timeline {
+            margin-top: 3rem;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--primary-color);
+        }
+
+        .timeline-item {
+            margin-bottom: 3rem;
+            padding-left: 2.5rem;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .timeline-item:hover::before {
+            transform: scale(1.2);
+            background-color: var(--accent-color);
+        }
+
+        .timeline-year {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        .timeline-item:hover .timeline-year {
+            color: var(--accent-color);
+        }
+
+        .timeline-content h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .timeline-item:hover .timeline-content h3 {
+            color: var(--primary-color);
+        }
+
+        .timeline-content p {
+            line-height: 1.6;
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .info-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            transition: all 0.5s ease;
+        }
+
+        .info-box:hover::before {
+            top: 0;
+            left: 0;
+        }
+
+        .info-box h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .info-box p {
+            line-height: 1.6;
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 3rem;
+        }
+
+        .progress-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 5px;
+            width: 0;
+            transition: width 1.5s ease;
+        }
+
+        /* Demo Section */
+        .demo-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 3rem;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .demo-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .demo-upload:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 109, 229, 0.05);
+        }
+
+        .demo-upload i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .demo-upload h3 {
+            margin-bottom: 1rem;
+        }
+
+        .demo-upload p {
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.8rem 2rem;
+            margin-top: 1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .cta-button:hover::after {
+            left: 100%;
+        }
+
+        .social-icons {
+            margin: 1rem 0;
+        }
+
+        .social-icon {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .social-icon:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .scale-in.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Floating UI Elements */
+        #scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        #scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #scroll-top:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                padding-left: 3rem;
+            }
+
+            .timeline-item::before {
+                left: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            section {
+                padding: 3rem 1rem;
+            }
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(74, 109, 229, 0.3);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
+            display: none;
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+
+    <!-- Scroll to Top Button -->
+    <div id="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header>
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Portfolio
+        </a>
+        <button class="theme-toggle" id="theme-toggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1 class="fade-in">DEEP FAKE DETECTION</h1>
+            <p class="fade-in">"Exposing the Fake, Protecting the Truth!"</p>
+            <div class="hero-image fade-in pulse">
+                <img src="/api/placeholder/800/450" alt="Deep Fake Detection System">
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section>
+        <div class="section-container">
+            <h2 class="section-title slide-in-left">Project Overview</h2>
+            <div class="fade-in">
+                <p>The Deep Fake Detection project is an AI-powered system designed to identify manipulated media content across various platforms. Using advanced machine learning algorithms and multi-modal analysis techniques, our system can detect deepfakes with high accuracy in images, videos, and audio recordings.</p>
+                
+                <p>As deepfake technology becomes increasingly sophisticated and accessible, the need for reliable detection systems has never been more critical. This project aims to combat digital misinformation and protect the integrity of digital content in our increasingly AI-driven world.</p>
+                
+                <div class="info-box">
+                    <h3>Why Deep Fake Detection Matters</h3>
+                    <p>Deepfakes pose serious threats to digital trust, personal reputation, and information integrity. They can be used to spread misinformation, manipulate public opinion, commit fraud, and even compromise national security. Our detection system serves as a crucial defense against these growing threats.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Section -->
+    <section class="market-section">
+        <div class="section-container">
+            <h2 class="section-title slide-in-right">Project Progress</h2>
+            <div class="progress-container fade-in">
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>Model Accuracy</span>
+                        <span>92%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" data-width="92"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>API Development</span>
+                        <span>85%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" data-width="85"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>Frontend Interface</span>
+                        <span>78%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" data-width="78"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>Market Testing</span>
+                        <span>60%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" data-width="60"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section>
+        <div class="section-container">
+            <h2 class="section-title slide-in-left">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card scale-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Advanced AI Detection</h3>
+                    <p>Leveraging state-of-the-art neural networks and machine learning algorithms to detect subtle inconsistencies invisible to the human eye.</p>
+                </div>
+                
+                <div class="feature-card scale-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3>Multi-Modal Analysis</h3>
+                    <p>Analyzes visual, audio, and metadata components simultaneously to achieve higher detection accuracy across different media types.</p>
+                </div>
+                
+                <div class="feature-card scale-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Real-Time Detection</h3>
+                    <p>Processes and analyzes media in real-time, allowing for immediate identification of potentially manipulated content before it spreads.</p>
+                </div>
+                
+                <div class="feature-card scale-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Cloud-Based API</h3>
+                    <p>Easily integrates with existing platforms and applications through our secure, scalable cloud infrastructure.</p>
+                </div>
+                
+                <div class="feature-card scale-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Enhanced Security</h3>
+                    <p>Includes blockchain verification mechanisms to establish content authenticity and maintain a tamper-proof record of analysis results.</p>
+                </div>
+                
+                <div class="feature-card scale-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>Adaptive Learning</h3>
+                    <p>Continuously improves detection capabilities by learning from new deepfake techniques and evolving to counter emerging threats.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section class="market-section">
+        <div class="section-container">
+            <h2 class="section-title slide-in-right">Try Our Demo</h2>
+            <p class="fade-in">Experience the power of our deepfake detection system firsthand with our interactive demo.</p>
+            
+            <div class="demo-container fade-in">
+                <div class="demo-upload" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Media for Analysis</h3>
+                    <p>Drag and drop your file here or click to select</p>
+                    <p>(This is a demonstration - no actual files will be uploaded)</p>
+                </div>
+                <div id="results-area" style="display: none; margin-top: 2rem;">
+                    <h3>Analysis Results</h3>
+                    <div id="result-details" style="margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Section -->
+    <section>
+        <div class="section-container">
+            <h2 class="section-title slide-in-left">Commercialization & Feasibility</h2>
+            <div class="fade-in">
+                <p>Our AI-powered Deepfake Detection System is highly feasible with growing market demand in media, cybersecurity, law enforcement, and social platforms. It can be commercialized as a cloud-based API, enterprise software, or integrated security tool, ensuring scalability, cost-effectiveness, and widespread adoption.</p>
+                
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Target Markets</h3>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li style="margin-bottom: 1rem; padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="market-item">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); position: absolute; left: 0; top: 3px;"></i>
+                        <strong>Media Organizations:</strong> News outlets, publishers, and content creators who need to verify the authenticity of media assets.
+                    </li>
+                    <li style="margin-bottom: 1rem; padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="market-item">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); position: absolute; left: 0; top: 3px;"></i>
+                        <strong>Social Media Platforms:</strong> Integration with social networks to automatically detect and flag potentially manipulated content.
+                    </li>
+                    <li style="margin-bottom: 1rem; padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="market-item">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); position: absolute; left: 0; top: 3px;"></i>
+                        <strong>Law Enforcement & Legal:</strong> Tools for forensic analysis and evidence verification in investigations and legal proceedings.
+                    </li>
+                    <li style="margin-bottom: 1rem; padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="market-item">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); position: absolute; left: 0; top: 3px;"></i>
+                        <strong>Cybersecurity Companies:</strong> Enhancement of existing security solutions with deepfake detection capabilities.
+                    </li>
+                    <li style="padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="<li style="padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="market-item">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); position: absolute; left: 0; top: 3px;"></i>
+                        <strong>Cybersecurity Companies:</strong> Enhancement of existing security solutions with deepfake detection capabilities.
+                    </li>
+                    <li style="padding-left: 2rem; position: relative; transition: all 0.3s ease;" class="market-item">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); position: absolute; left: 0; top: 3px;"></i>
+                        <strong>Financial Institutions:</strong> Identity verification and fraud prevention during digital onboarding and transactions.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="market-section">
+        <div class="section-container">
+            <h2 class="section-title slide-in-right">Development Timeline</h2>
+            <div class="timeline fade-in">
+                <div class="timeline-item">
+                    <div class="timeline-year">Phase 1 - Completed</div>
+                    <div class="timeline-content">
+                        <h3>Research & Model Development</h3>
+                        <p>Completed comprehensive research on deepfake generation techniques and developed the initial AI detection model architecture with 85% accuracy on benchmark datasets.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-year">Phase 2 - In Progress</div>
+                    <div class="timeline-content">
+                        <h3>Enhanced Model Training & API Development</h3>
+                        <p>Currently improving model accuracy through advanced training techniques and developing a robust, scalable API infrastructure for third-party integrations.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-year">Phase 3 - Upcoming</div>
+                    <div class="timeline-content">
+                        <h3>Web Application & Dashboard</h3>
+                        <p>Developing an intuitive web application and admin dashboard for end-users and enterprise clients to easily analyze and monitor media content.</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-year">Phase 4 - Future</div>
+                    <div class="timeline-content">
+                        <h3>Mobile Integration & Market Launch</h3>
+                        <p>Creating mobile SDKs for iOS and Android platforms and preparing for full commercial market launch with targeted marketing campaigns.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section>
+        <div class="section-container">
+            <h2 class="section-title slide-in-left">Get Involved</h2>
+            <div class="fade-in">
+                <p>Interested in our deepfake detection technology? Reach out to learn more about potential partnerships, investment opportunities, or to schedule a demonstration of our system.</p>
+                
+                <a href="#" class="cta-button">Contact Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-icons">
+            <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+        </div>
+        <p class="copyright">© 2025 Sarvesh Alai. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+        
+        // Scroll to Top Button
+        const scrollTopBtn = document.getElementById('scroll-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Animation on Scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right, .scale-in').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Custom Cursor (Desktop only)
+        const customCursor = document.querySelector('.custom-cursor');
+        
+        if (window.innerWidth > 768) {
+            customCursor.style.display = 'block';
+            
+            document.addEventListener('mousemove', (e) => {
+                customCursor.style.left = e.clientX + 'px';
+                customCursor.style.top = e.clientY + 'px';
+            });
+        }
+        
+        // Progress Bar Animation
+        document.querySelectorAll('.progress-bar-fill').forEach(fill => {
+            const width = fill.getAttribute('data-width');
+            
+            const progressObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        fill.style.width = width + '%';
+                        progressObserver.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            progressObserver.observe(fill);
+        });
+        
+        // Demo Upload Area
+        const uploadArea = document.getElementById('upload-area');
+        const resultsArea = document.getElementById('results-area');
+        const resultDetails = document.getElementById('result-details');
+        
+        uploadArea.addEventListener('click', simulateUpload);
+        
+        function simulateUpload() {
+            uploadArea.innerHTML = '<i class="fas fa-spinner fa-spin"></i><h3>Analyzing...</h3>';
+            
+            setTimeout(() => {
+                resultsArea.style.display = 'block';
+                resultDetails.innerHTML = `
+                    <div style="background-color: var(--card-bg); padding: 1.5rem; border-radius: 10px; border-left: 5px solid var(--primary-color);">
+                        <h4 style="margin-bottom: 1rem;">Analysis Complete</h4>
+                        <p><strong>Verdict:</strong> <span style="color: var(--primary-color); font-weight: 700;">Deepfake Detected</span></p>
+                        <p><strong>Confidence:</strong> 94.8%</p>
+                        <p><strong>Detected Issues:</strong></p>
+                        <ul style="list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Inconsistent eye blinking patterns</li>
+                            <li>Facial boundary artifacts</li>
+                            <li>Unnatural skin texture variations</li>
+                            <li>Audio-visual synchronization anomalies</li>
+                        </ul>
+                    </div>
+                    <button id="reset-demo" style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s ease;">Try Another</button>
+                `;
+                
+                uploadArea.innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i><h3>Upload Complete</h3>';
+                
+                document.getElementById('reset-demo').addEventListener('click', resetDemo);
+            }, 2000);
+        }
+        
+        function resetDemo() {
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Upload Media for Analysis</h3>
+                <p>Drag and drop your file here or click to select</p>
+                <p>(This is a demonstration - no actual files will be uploaded)</p>
+            `;
+            resultsArea.style.display = 'none';
+        }
+        
+        // Preloader
+        window.addEventListener('load', () => {
+            const preloader = document.querySelector('.preloader');
+            preloader.classList.add('fade-out');
+        });
+    </script>
+</body>
+</html>
